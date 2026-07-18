@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://shop3.torinori-shop.com/sitemap.xml
