@@ -1,26 +1,53 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <!-- 🌟 구글 서치콘솔 3호점 인증 태그 -->
-    <meta name="google-site-verification" content="1nGtsSR9tocyqzMDAo7GDYhY3HPQeVjbqVsYAj9Bi30" />
-
-    <!-- 🌟 네이버 서치어드바이저 3호점 인증 태그 (합체 완료!) -->
-    <meta name="naver-site-verification" content="54a3c390680560887ba2543c609be5376c54d6a7" />
-
-    <title>토 리 노 리 쇼 핑 3 호 점</title>
-    
-    <!-- 🌟 핵심: 네이버/구글 에러 방지용 대문 전용 요약 설명! -->
-    <meta name="description" content="매일 업데이트되는 가성비 끝판왕 특가 상품! 가장 저렴한 최저가 쇼핑 정보를 토리노리샵 3호점에서 가장 빠르게 확인해 보세요.">
-
-    <!-- 🌟 카톡/네이버 미리보기를 위한 오픈그래프(OG) 태그 -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="토 리 노 리 쇼 핑 3 호 점">
-    <meta property="og:description" content="매일 업데이트되는 가성비 끝판왕 특가 상품! 초특가 쇼핑 정보를 가장 빠르게 확인해 보세요.">
+<!-- ... existing code ... -->
 </head>
 <body>
-    <h1>쇼핑 특가 정보 자동화 블로그 3호점입니다.</h1>
+    <h1>쇼핑 특가 정보 자동화 블로그 3호점입니다.</h1>
+    
+    <!-- 🌟 추가됨: 사이트맵을 읽어와 화면에 뿌려주는 영역 및 스크립트 -->
+    <div id="products-list">
+        <p style="color: #666; margin-top: 20px;">최신 특가 상품을 불러오는 중입니다...</p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 사이트맵 파일을 불러옵니다 (n8n이 갱신하는 파일)
+            fetch('/sitemap.xml')
+                .then(response => response.text())
+                .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+                .then(data => {
+                    const urls = data.querySelectorAll("url loc");
+                    const listContainer = document.getElementById("products-list");
+                    let html = "<ul style='line-height: 1.8; font-size: 16px; list-style-type: none; padding-left: 0; margin-top: 20px;'>";
+                    
+                    // 최신 글이 위로 오도록 배열을 뒤집음 (역순)
+                    const urlArray = Array.from(urls).reverse();
+                    
+                    urlArray.forEach(urlNode => {
+                        const loc = urlNode.textContent;
+                        
+                        // 메인 도메인 자체는 리스트에서 제외
+                        if (loc === "https://shop3.torinori-shop.com" || loc === "https://shop3.torinori-shop.com/") return;
+                        
+                        // URL 경로에서 파일명(상품번호)만 추출하여 임시 제목으로 사용
+                        let title = loc.split('/').pop().replace('.html', '').replace(/_/g, ' ');
+                        if (!title) title = "특가 상품 확인하기";
+                        
+                        // 로봇이 타고 들어갈 수 있는 a 태그(하이퍼링크) 생성
+                        html += `<li style="margin-bottom: 12px;">
+                                    <a href="${loc}" style="color: #0056b3; text-decoration: none; font-weight: bold; border-bottom: 1px solid #ccc; padding-bottom: 2px;">
+                                        👉 [특가 득템] ${title}
+                                    </a>
+                                 </li>`;
+                    });
+                    
+                    html += "</ul>";
+                    listContainer.innerHTML = html; // 화면에 생성된 링크 리스트 출력
+                })
+                .catch(err => {
+                    console.error("Error loading sitemap:", err);
+                    document.getElementById("products-list").innerHTML = "<p>상품 리스트 업데이트 중입니다...</p>";
+                });
+        });
+    </script>
 </body>
 </html>
